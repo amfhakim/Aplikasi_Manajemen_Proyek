@@ -1,11 +1,11 @@
 const graphql = require ('graphql');
 const _ = require('lodash');
 const path = require('path');
-const Proyek = require('./models/proyekModel')
-const Divisi = require('./models/divisiModel');
-const Karyawan = require('./models/karyawanModel');
-const Akun = require('./models/akunModel');
-const Client = require('./models/clientModel');
+const Proyek = require('./models/ProyekModel')
+const Divisi = require('./models/DivisiModel');
+const Karyawan = require('./models/KaryawanModel');
+const Akun = require('./models/AkunModel');
+const Client = require('./models/ClientModel');
 
 const {
 	GraphQLObjectType,
