@@ -1,14 +1,5 @@
 import {gql} from 'apollo-boost';
 
-const getVendorsQuery = gql`
-{
-	vendors {
-		nama
-		jenis_usaha
-		id
-	}
-}
-`
 
 const getKaryawansQuery = gql`
 {
@@ -22,21 +13,11 @@ const getKaryawansQuery = gql`
 		no_kontak
 		email
 		jabatan
+		gaji
 		divisi{
 			nama
 			id
 		}
-		id
-	}
-}
-`
-const getClientsQuery = gql`
-{
-	clients {
-		nama
-		alamat
-		no_kontak
-		email
 		id
 	}
 }
@@ -68,6 +49,5 @@ const getAkunQuery = gql`
 	}
 `
 
-export {getVendorsQuery, 
-	getKaryawansQuery,
-getAkunQuery, getClientsQuery};
+export { getKaryawansQuery,
+getAkunQuery};

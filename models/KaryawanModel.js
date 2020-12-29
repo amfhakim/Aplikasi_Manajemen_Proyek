@@ -12,7 +12,8 @@ const KaryawanSchema = new Schema({
 	email: String, 
 	foto:String,
 	jabatan: String,
-	divisi_id: String
+	divisi_id: String,
+	gaji: Number
 });
 
 module.exports = mongoose.model('Karyawan', KaryawanSchema);

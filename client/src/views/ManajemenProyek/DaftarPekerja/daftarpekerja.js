@@ -33,14 +33,21 @@ class DaftarPekerja extends Component {
           return (<div>Loading Daftar Pekerja...</div>);
         } else {
           return data.karyawans.map(pekerja => {
-            no++;
-            return(
-              <tr key={pekerja.id}>
-                <td>{no}</td>
-                <td>{pekerja.nama}</td>
-                <td>{pekerja.jabatan}</td>
-              </tr>
+           
+            if(pekerja.jabatan === "Pekerja" || 
+            pekerja.jabatan === "Pekerja Ahli" ||
+            pekerja.jabatan === "Asisten Pekerja"){
+              no++;
+              return(
+                <tr key={pekerja.id}>
+                  <td>{no}</td>
+                  <td>{pekerja.nama}</td>
+                  <td>{pekerja.jabatan}</td>
+                  <td>{pekerja.gaji}</td>
+                </tr>
             );
+            }
+            
           });
         }
       }
@@ -61,6 +68,7 @@ class DaftarPekerja extends Component {
                     <th>No</th>
                     <th>Nama Pekerja</th>
                     <th>Jabatan</th>
+                    <th>Gaji Harian</th>
                   </tr>
                   </thead>
                   <tbody align="center">

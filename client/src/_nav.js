@@ -4,10 +4,6 @@ export default {
       name: 'Daftar Proyek',
       url: '/daftarproyek/daftarproyek',
       icon: 'icon-speedometer',
-    },{
-      name: 'Tambah Proyek Baru',
-      url: '/tambahproyek/tambahproyek',
-      icon: 'icon-speedometer',
     },
     {
       name: 'Daftar Pekerja',

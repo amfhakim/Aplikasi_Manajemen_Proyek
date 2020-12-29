@@ -77,7 +77,7 @@ class DefaultLayout extends Component {
                         )} />
                     ) : (null);
                   })}
-                  <Redirect from="/" to="/dashboard" />
+                  <Redirect from="/" to="/daftarproyek/daftarproyek" />
                 </Switch>
               </Suspense>
             </Container>

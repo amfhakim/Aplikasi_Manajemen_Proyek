@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import {graphql} from 'react-apollo';
 import * as compose from 'lodash.flowright';
 import Swal from 'sweetalert2';
-import {getBarangsQuery, addBarangMutation, hapusBarangMutation} from '../queries/queries';
+import {getProyeksQuery, addProyek} from '../queries/proyekqueries';
+import {getClientsQuery} from '../queries/clientqueries';
 import { 
   Card, 
   CardBody, 
@@ -29,13 +30,31 @@ class DaftarProyek extends Component {
     constructor(props) {
         super(props);
         this.state = {
-          nama_barang:'',
-          jenis_barang: '',
-          satuan: '',
-          harga: '',
+          nama_proyek:'',
+          alamat_proyek: '',
+          budget: 0,
+          tanggal_mulai: '',
+          tanggal_selesai: '',
+          client_id: '',
           modalIsOpen: false,  
           success: false,
         };
+      }
+
+      submitForm(e){
+        e.preventDefault();
+        this.props.addProyek({
+          variables:{
+            nama: this.state.nama_proyek,
+            alamat: this.state.alamat_proyek,
+            budget: parseInt(this.state.budget),
+            tanggal_mulai:this.state.tanggal_mulai,
+            tanggal_selesai:this.state.tanggal_selesai,
+            client_id:this.state.client_id
+          },
+          refetchQueries:[{query:getProyeksQuery}]
+        });
+    
       }
 
     toggleModal(){
@@ -43,7 +62,49 @@ class DaftarProyek extends Component {
           modalIsOpen: ! this.state.modalIsOpen
         });
       }
-    
+
+      displayProyek(){
+        var data = this.props.getProyeksQuery;
+        var no = 0;
+        if(data.loading){
+          return (<div>Loading Daftar Proyek...</div>);
+        } else {
+          return data.proyeks.map(proyek => {
+            no++;
+            return(
+              <tr key={proyek.id}>
+                <td>{no}</td>
+                <td>{proyek.nama}</td>
+                <td>{proyek.alamat}</td>
+                <td>{proyek.budget}</td>
+                <td>{proyek.tanggal_mulai}</td>
+                <td>{proyek.tanggal_selesai}</td>
+                <td>{proyek.client.nama}</td>
+                <td>
+                  <Link to={`/detailproyek/detailproyek/${proyek.id}`}>
+                    <Button color="success" size="sm">
+                      <a> Lihat </a>
+                    </Button>
+                  </Link>
+                </td>
+              </tr>
+            );
+          });
+        }
+      }
+
+      displayClient(){
+        var data = this.props.getClientsQuery;
+        if(data.loading){
+          return
+        } else {
+          return data.clients.map(client => {
+            return(
+              <option value={client.id}>{client.nama}</option>
+            );
+          });
+        } 
+      }
 
   render() {
     return (
@@ -63,13 +124,16 @@ class DaftarProyek extends Component {
                   <tr>
                     <th>No</th>
                     <th>Nama Proyek</th>
-                    <th>Client</th>
                     <th>Alamat Proyek</th>
-                    <th>Edit</th>
-                    <th>Hapus</th>
+                    <th>Budget</th>
+                    <th>Tanggal Mulai</th>
+                    <th>Tanggal Selesai</th>
+                    <th>Client</th>
+                    <th>Detail Proyek</th>
                   </tr>
                   </thead>
                   <tbody align="center">
+                      {this.displayProyek()}
                   </tbody>
                 </Table>
                 <nav>
@@ -90,44 +154,37 @@ class DaftarProyek extends Component {
         </Row> 
 
         <Modal isOpen={this.state.modalIsOpen}>
-          <ModalHeader>Form Tambah Data Barang</ModalHeader>
+          <ModalHeader>Form Tambah Proyek</ModalHeader>
           <ModalBody>
             <Form onSubmit={(e) => {this.submitForm(e)}}>
               <FormGroup>
-                <Label htmlFor="name">Nama Barang</Label>
-                <Input type="text" id="name" placeholder="Masukkan Nama Barang" onChange={(e) =>this.setState({nama_barang:e.target.value})} required />
+                <Label htmlFor="name">Nama Proyek</Label>
+                <Input type="text" id="name" placeholder="Masukkan Nama Proyek" onChange={(e) =>this.setState({nama_proyek:e.target.value})} required />
               </FormGroup>
               <FormGroup>
-                <Label htmlFor="name">Jenis Barang</Label>
-                <Input type="text" id="jenis" placeholder="Masukkan Jenis Barang" onChange={(e) =>this.setState({jenis_barang:e.target.value})} required />
+                <Label htmlFor="name">Alamat Proyek</Label>
+                <Input type="text" id="jenis" placeholder="Masukkan Alamat Proyek" onChange={(e) =>this.setState({alamat_proyek:e.target.value})} required />
               </FormGroup>
               <FormGroup>
-                <Label htmlFor="name">Satuan</Label>
-                <Input type="select" name="satuan" id="satuan" onChange={(e) =>this.setState({satuan:e.target.value})}>
-                  <option>Satuan</option>
-                  <option value="Kg">Kg</option>
-                  <option value="Buah">Buah</option>
-                  <option value="Meter">Meter</option>
-                  <option value="Lembar">Lembar</option>
-                  <option value="Liter">Liter</option>
-                  <option value="Sak">Sak</option>
-                  <option value="m">m</option>
-                  <option value="m2">m2</option>
-                  <option value="m3">m3</option>
-                  <option value="Roll">Roll</option>
-                  <option value="Kardus">Kardus</option>
-                  <option value="Batang">Batang</option>
-                  <option value="Truk">Truk</option>
-                  <option value="Drum">Drum</option>
-                  <option value="Takaran">Takaran</option>
-                  <option value="Takaran">Unit</option>
-                </Input>
+                <Label htmlFor="name">Budget</Label>
+                <Input type="number" id="harga" placeholder="Masukkan Budget" onChange={(e) =>this.setState({budget:e.target.value})} required />
               </FormGroup>
               <FormGroup>
-                <Label htmlFor="name">Harga Barang</Label>
-                <Input type="number" id="harga" placeholder="Masukkan Harga Barang" onChange={(e) =>this.setState({harga:e.target.value})} required />
+                <Label htmlFor="name">Tanggal Mulai</Label>
+                <Input type="date" id="harga" placeholder="Masukkan Tanggal Mulai" onChange={(e) =>this.setState({tanggal_mulai:e.target.value})} required />
               </FormGroup>
-              <Button type="submit" color="primary">Submit</Button>
+              <FormGroup>
+                <Label htmlFor="name">Tanggal Selesai</Label>
+                <Input type="date" id="harga" placeholder="Masukkan Tanggal Selesai" onChange={(e) =>this.setState({tanggal_selesai:e.target.value})} required />
+              </FormGroup>
+              <FormGroup>
+                <Label htmlFor="name">Nama Client</Label>
+                <Input type="select" name="nama_client" onChange={(e) =>this.setState({client_id:e.target.value})} required>
+                  <option value="">Pilih Client</option>
+                  {this.displayClient()}
+                </Input> 
+              </FormGroup>
+              <Button type="submit" color="primary" onClick={this.toggleModal.bind(this)}>Submit</Button>
               <Button color="danger" onClick={this.toggleModal.bind(this)}>Batal</Button>
             </Form>
           </ModalBody>  
@@ -139,4 +196,8 @@ class DaftarProyek extends Component {
   }
 }
 
-export default DaftarProyek;
+export default compose(
+  graphql(getProyeksQuery, {name:"getProyeksQuery"}),
+  graphql(addProyek, {name:"addProyek"}),
+  graphql(getClientsQuery, {name:"getClientsQuery"})
+)(DaftarProyek);
