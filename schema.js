@@ -7,6 +7,9 @@ const Karyawan = require('./models/KaryawanModel');
 const Akun = require('./models/AkunModel');
 const Client = require('./models/ClientModel');
 const Pekerjaan = require('./models/PekerjaanModel');
+const Barang = require('./models/BarangModel');
+const BarangPekerjaan = require('./models/BarangPekerjaanModel');
+
 const {
 	GraphQLObjectType,
 	GraphQLID,
@@ -15,6 +18,7 @@ const {
 	GraphQLList,
 	GraphQLSchema,
 	GraphQLNonNull,
+	GraphQLBoolean
 } = graphql;
 
 const ProyekType = new GraphQLObjectType({
@@ -137,6 +141,28 @@ const PekerjaanType = new GraphQLObjectType({
     })
 });
 
+const BarangPekerjaanType = new GraphQLObjectType({
+	name: 'BarangPekerjaan',
+	fields: () => ({
+		id: {type: GraphQLID},
+		jumlah: {type:GraphQLInt},
+		barang_id:{
+            type: BarangType,
+			resolve(parent,args){
+				return Barang.findById({_id: parent.barang_id});
+			}
+		},
+		pekerjaan_id: {
+            type: PekerjaanType,
+			resolve(parent,args){
+				return Pekerjaan.findById({_id: parent.pekerjaan_id});
+			}
+		},
+		status: {type: GraphQLBoolean}
+	})
+});
+
+
 const RootQuery = new GraphQLObjectType({
 	name: 'RootQueryType',
 	fields: {
@@ -233,6 +259,20 @@ const RootQuery = new GraphQLObjectType({
 			args: {id:{type:GraphQLID}},
 			resolve(parent,args){
 				return Barang.find({});
+			}
+		},
+		barangPekerjaan:{
+			type: BarangPekerjaanType,
+			args: {id:{type:GraphQLID}},
+			resolve(parent,args){
+				return BarangPekerjaan.findById(args.id);
+			}
+		},
+		barangPekerjaans:{
+			type: new GraphQLList(BarangPekerjaanType),
+			args: {id:{type:GraphQLID}},
+			resolve(parent,args){
+				return BarangPekerjaan.find({});
 			}
 		}, 
     }
@@ -363,7 +403,45 @@ const Mutation = new GraphQLObjectType({
 					tanggal_mulai: args.tanggal_mulai,
 					tanggal_selesai: args.tanggal_selesai})
 			}
-        },      
+		},
+		addBarangPekerjaan:{
+			type: BarangPekerjaanType,
+			args:{
+				jumlah: {type: new GraphQLNonNull(GraphQLInt)},
+				barang_id: {type: new GraphQLNonNull(GraphQLString)},
+				pekerjaan_id: {type: new GraphQLNonNull(GraphQLString)},
+				status: {type: new GraphQLNonNull(GraphQLBoolean)},
+			},
+			resolve(parent, args){
+				let barangPekerjaan = new BarangPekerjaan({
+					barang_id: args.barang_id,
+					jumlah: args.jumlah,
+					pekerjaan_id:  args.pekerjaan_id,
+					status: args.status
+				});
+				return barangPekerjaan.save();
+			}
+		},
+		hapusBarangPekerjaan:{
+			type: BarangPekerjaanType,
+			args: {id:{type:GraphQLID}},
+			resolve(parent,args){
+				return BarangPekerjaan.deleteOne({_id:args.id});
+			}
+		},
+		updateBarang:{
+			type: BarangType,
+			args: {
+				id:{type:GraphQLID},
+				nama_barang: {type: new GraphQLNonNull(GraphQLString)},
+				jenis_barang: {type: new GraphQLNonNull(GraphQLString)},
+				satuan: {type: new GraphQLNonNull(GraphQLString)},
+				harga: {type: new GraphQLNonNull(GraphQLInt)},
+			},
+			resolve(parent, args){
+				return Barang.findOneAndUpdate({_id: args.id}, {nama_barang: args.nama_barang, jenis_barang:args.jenis_barang, satuan:args.satuan, harga:args.harga})
+			}
+		},      
     }
 });
 
